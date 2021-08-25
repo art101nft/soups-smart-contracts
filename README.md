@@ -30,7 +30,7 @@ npx ganache-cli --defaultBalanceEther 50000
 npx truffle test
 ```
 
-There is a unit test in there that is very time consuming (the last one) since it mints all 9999 doges to confirm the upper lower bounds, that doges will not go over, and that we don't get 0 or > 9999 tokenIds; you may want to temporarily comment it out if casually updating or adding tests.
+There is a unit test in there that is very time consuming (the last one) since it mints all 2048 soups to confirm the upper lower bounds, that soups will not go over, and that we don't get 0 or > 2048 tokenIds; you may want to temporarily comment it out if casually updating or adding tests.
 
 ## Deploying
 
@@ -84,8 +84,8 @@ In the console you have to load your contract and can manually invoke functions.
 $ npx truffle console --network $NETWORK
 truffle(rinkeby)> let nfs = await NonFungibleSoup.deployed();
 undefined
-truffle(rinkeby)> (await nfs.MAX_DOGES()).toString()
-'9999'
+truffle(rinkeby)> (await nfs.MAX_ITEMS()).toString()
+'2048'
 truffle(rinkeby)> nfs.tokenURI(5)
 'ipfs://QmaWpBxEhSi1tRdjjhbGBq7evTDc5pGJfA6ryFuJ2Ai3St/5'
 ```
