@@ -11,7 +11,6 @@ module.exports = {
     rinkeby: {
       provider: () => new HDWalletProvider(process.env.MNEMONIC, "https://rinkeby.infura.io/v3/" + process.env.INFURA_PID),
       network_id: 4,
-      gas: 27500000,
       confirmations: 1,
       timeoutBlocks: 10,
       skipDryRun: true,
@@ -20,7 +19,6 @@ module.exports = {
     mainnet: {
       provider: () => new HDWalletProvider(process.env.MNEMONIC, "https://mainnet.infura.io/v3/" + process.env.INFURA_PID),
       network_id: 1,
-      gasPrice: 44000000000,
       confirmations: 3,
       timeoutBlocks: 30,
       skipDryRun: false,
