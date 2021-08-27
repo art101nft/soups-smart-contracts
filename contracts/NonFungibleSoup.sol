@@ -17,7 +17,7 @@ contract NonFungibleSoup is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable 
 
     // Define starting values for contract
     bool public saleIsActive = true;
-    string public baseURI = "ipfs://QmdEhKev9ydfdGJupVaAeoftUEkTF3paCyfYiNRE5hWPw4/";
+    string public baseURI = "ipfs://QmajxdsaVsSAxUXBfkcYriznVzVGyVjxFZKYqHqPHYcGap/";
     uint256 public RAND_PRIME;
     uint256 public TIMESTAMP;
     uint256 public constant maxItemPurchase = 3;
