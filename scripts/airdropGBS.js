@@ -1,5 +1,233 @@
-let goodBoiOwners = []; // manually override me
-let soupTokenIds = [];
+// grabbed owners of good bois
+let goodBoiOwners = [
+  "0xb16d1caA38810e97A60b8aDD20b35243c712B2AC",
+  "0xD893Cf5A7B6964c7dbFA82dB383Cf1dB5aBa65D7",
+  "0x8B0C8c18993a31F57e60d81761F532Ef14633153",
+  "0x08D816526BdC9d077DD685Bd9FA49F58A5Ab8e48",
+  "0x04f3c550216a29fdEA8c7cf56823b7ED2FfF8EfF",
+  "0xBE6F5437C3C73FA238628Fb5dA61A1A07ea0E8f5",
+  "0xC173Ff601b33B48A048E9fa641497B1889ce6680",
+  "0xE83e41D63774e39c2Aa9Ff0B03A2D1bEB777811D",
+  "0xF8254f25e037B6C1DB7d1C8692335E682dFe163a",
+  "0x9361C1Bbe1c7E3197758414B49D19BcE1241668A",
+  "0x90A68Ca74C218851dfaf2d7FFD538f277655684b",
+  "0x0ebF43A8718E70f8B59FE055a8F965BE53CF5f95",
+  "0x4f783a3F1192dB0ae0d06c3554B767Dfc75F144e",
+  "0xC33a15A2d5DB9C4567Da680606C05DEAd4fD17ac",
+  "0x787551ae0AB07dE8EB91d1535DBD37f379B0111D",
+  "0xB4021D39317719aACF4964A9098b79634E0eD054",
+  "0x5673Bbc0174AFb6AA71213bc3b00fc4f6630c654",
+  "0xf163eE6e87efDcBA76AdF105AA9825b7CD48683f",
+  "0x4466192236248a4bd28d8C6eBa4dD3fA7D421901",
+  "0x4f8382F3d38108128e98b621f7370179DD99E1b6",
+  "0x6199f8b551af1a3Aaf9Dc12A0491D91999282216",
+  "0xd82d427618Ddb365B41d4743415fd01a97F5786C",
+  "0x6399Ad19D3831007363b36E98B2c55A0d1A869A1",
+  "0xf926C5c0b9ddfE3C382F6056CF0324cB1FD7665e",
+  "0x82e133653E5069a61062b28795eF19A99A3D2C75",
+  "0x6C37148710E10d07522b4754d336E49daB5B1167",
+  "0x6aDceb70Eb159c03EDBD98C2fb7EDAB674aBd7b5",
+  "0xEBF0dFCDD8EA351c321E46713174421ae71da2FF",
+  "0xDddd34f88B475daE9feF76af218B00CCa0d7a06A",
+  "0x21bAb3c4eFC1Af83539883002C31885A7a198889",
+  "0xC074E6fE27459284664AE7bF64f927A834FAC40E",
+  "0xaFa259b69e20b547443DA38104ecF43C29EBA074",
+  "0x616C259b5fD4C3ce12199c260220c80B38897d30",
+  "0x2381647D5667E44Bb23c610659a15d42BBe8F530",
+  "0xdBAf851e1Cf67e905A69986c8d59323F88256FAB",
+  "0xB43C79C682d797dC352d3082F5a33BC7a358147C",
+  "0xaD0E75eBf186F49d8fB39ac775A63B08422cAe23",
+  "0xD0F109fEe7af68f06c15653f734eAdF27A04DFaB",
+  "0x83988FFC6f4352Bd22cB68B815d2ed52Fc897cCC",
+  "0xaA8654eb39a895Ac57c35eb27778B419563BAaa9",
+  "0x582a6e4d695d0890Eb5FaA399aF2026A9D5b11C7",
+  "0xE6EAc0f55E3F5eCEFAe3877015fb8631C95a3a45",
+  "0xa4fc82338d3753065d3A81652d5d73600855B2BF",
+  "0x294d3379Df9E368422A0FA072a7a729B1740BC5E",
+  "0x1bAC4d218b2d25746A48A489cAfd3c69B2a6B8c8",
+  "0xF089Cec067a9b52C229dfBD7e94a124cD72943bf",
+  "0x29d517bD99123574f1E91358215c41B6bE24e59f",
+  "0x29330AFA390eEd3bf2321ab132A5845432518a4A",
+  "0x6f573eEb6B2D31EbCfF7497407c9dF9ebC71054b",
+  "0x812BB1ac0049f8215fDEC761C8C07CdCE32E2E82",
+  "0x7513Da82565a6514dFE0485C02C623Abc5f7D6A3",
+  "0xD8B513704Af7295d820D4bdB3759a6631c04238c",
+  "0x909a42b54ED134DcD858A51E3201C4Fdb7A36b23",
+  "0x0c6De5dBf546742e5Be36cf1B465b20DAbDf54c6",
+  "0x1ce139b73DBC1d855e4B360856aC3885558Fc5F8",
+  "0x03ba9A0c5a042D7dd862b04fCeFb1CBA05035c59",
+  "0x5e5C817E9264B46cBBB980198684Ad9d14f3e0B4",
+  "0x1A87Fe212028Dd92fe97bBa8E2BafDA2F146bEA7",
+  "0x78731cE126a435E74a1f91ca1c3605Ea4bBa960a",
+  "0x086f51fcEd9Ff6c742D706C319112359E3658b08",
+  "0x139b75B6136d2E0cA0d449578AdF2D494935C9dD",
+  "0xd91Df67362853dA7BD0cE62ccECd2C36ee909535",
+  "0xEaBABbEb4289fa94da17b4C58786D93416bb0945",
+  "0x40a0024b51af652c303524bB14c7187D464d9106",
+  "0x7a04EdA5106793D439b8271c25798DE5Ba160c73",
+  "0xF7e33d7aA1Bfb706f16504a1257704F1e8ffc1eF",
+  "0x9417AB659e81411DC3D0385B2dd27fa0a4f38392",
+  "0xd1674f577c92835a21ce682174E727180CCc3f71",
+  "0x7e28F3E2E0FA1F94998745BCD6c709C93C2997B3",
+  "0x64bcf0f9C8ba6670657eC91835f7a8972905Ea84",
+  "0x2C3619482FCe6a81a8954ca967986F4eAa29eE17",
+  "0x77E62FB482027eCA49B160e6f7B699Fd3621F68F",
+  "0x69A1e8F4f2e538530ce69D05cdf1F82A7E3F465C",
+  "0x4Cb501228cC0406487a95D23F21d0eA3aB54e294",
+  "0xFE787a386B6dd33eFA0716f7dF156B7F4e37e672",
+  "0x14b993eeD8E8Ff78195c7fDa865Ce6431ecaAEbA",
+  "0x5143B2F5e573Be79aA5D96Ae1367bFC6F095C4d9",
+  "0x188C30E9A6527F5F0c3f7fe59B72ac7253C62F28",
+  "0xFaB92e973096623F071f27eEAAD5e7B647672cfd",
+  "0x66B388d344e7E5B578de6388bA3367644D1857f8",
+  "0x484eDdbc1b2F097D87Fb454f5e6da6eB168E0d5A",
+  "0xf79f7695C73316314edd2df72981c00B37e344B9",
+  "0x802Aa6ae552e4F98b3FBE52e7faC91076A685C74",
+  "0xF8361e5d014cd464BC82d3Cc474Fb04F39834f2A",
+  "0xBB4aD4fE66648a5e6715e08b31eff3419e509F5E",
+  "0x8BB8D453B59D3ae166898E44326a1672cEbb2877",
+  "0xCe9F567731c6cbCC38Bc153ee68c304D44d3d611",
+  "0xAE50C67b23647571E4791626438fC385Dd87CE11",
+];
+
+// grabbed tokens owned by Patrn/Art101 wallet
+let soupTokenIds = [
+529,
+1100,
+1671,
+1907,
+430,
+1001,
+666,
+1237,
+1808,
+331,
+902,
+1473,
+2044,
+567,
+1138,
+1709,
+232,
+803,
+1374,
+1945,
+468,
+1039,
+1610,
+133,
+704,
+1275,
+1846,
+369,
+940,
+1511,
+34,
+605,
+1176,
+1747,
+270,
+841,
+1412,
+1983,
+506,
+1077,
+1648,
+171,
+742,
+1313,
+1884,
+407,
+978,
+1549,
+72,
+643,
+1214,
+1785,
+308,
+879,
+1450,
+2021,
+544,
+1115,
+1686,
+209,
+780,
+1351,
+1922,
+445,
+1016,
+1587,
+110,
+681,
+1252,
+1823,
+346,
+917,
+1488,
+11,
+582,
+1153,
+1724,
+247,
+818,
+1389,
+1960,
+483,
+1054,
+1625,
+148,
+719,
+1290,
+1861,
+384,
+955,
+1526,
+49,
+620,
+1191,
+1762,
+285,
+856,
+1427,
+1998,
+521,
+1092,
+1663,
+186,
+757,
+1328,
+1899,
+422,
+993,
+1564,
+87,
+658,
+1229,
+1800,
+323,
+894,
+1465,
+2036,
+559,
+1130,
+1701,
+1963,
+486,
+1057,
+326,
+897,
+1468,
+1361,
+1932,
+455,
+1041,
+1612,
+135,
+1908,
+431,
+1002,
+]
 
 module.exports = async function main(callback) {
   try {
@@ -10,28 +238,27 @@ module.exports = async function main(callback) {
     let bal = await nfs.balanceOf(accounts[0]);
     console.log(`Found ${bal} NFTs for address ${accounts[0]}`)
 
-    // Ensure we have enough soup can NFTs to send
-    if (goodBoiOwners.length > bal) {
-      console.log(`Not enough NFTs available (${bal}) to send to all Good Boi owners ${goodBoiOwners.length}`)
-      callback(1);
-    }
-
-    // Get all tokenIds that belong to contract owner
-    for (i = 1; i <= supply; i++) {
-      tokenId = await nfs.getTokenId(i);
-      owner = await nfs.ownerOf(tokenId);
-      if (owner == accounts[0]) {
-        soupTokenIds.push(Number(tokenId))
-      }
-    }
-
-    // Loop through Good Boi owners and airdrop them a soup can NFT
+    // Loop through Good Boi owners 20 at a time and airdrop them a soup can NFT
+    let t = 0;
     for (i = 0; i < goodBoiOwners.length; i++) {
+      if (t == 20) {
+        console.log(`Ending run...`);
+        callback(1);
+      }
       let gbOwner = goodBoiOwners[i];
       let tokenId = soupTokenIds[i];
-      console.log(`Sending soup #${tokenId} to Good Boi owner ${gbOwner}...`)
+      let tokenOwner = await nfs.ownerOf(tokenId);
+
+      // if good boi owner is not our address
+      // AND if owner of said token is not good boi owner...
+      if (gbOwner != accounts[0] && tokenOwner != gbOwner) {
+        console.log(`Sending soup #${tokenId} to Good Boi owner ${gbOwner}...`);
         let res = await nfs.safeTransferFrom(accounts[0], gbOwner, tokenId);
         console.log(res.tx);
+        t = t + 1;
+      } else {
+	      console.log(`Skipping... #${tokenId} (${tokenOwner}) to ${gbOwner}`);
+      }
     }
 
     callback(0);
