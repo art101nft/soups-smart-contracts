@@ -6,6 +6,8 @@ module.exports = async function main(callback) {
     const existingTimestamp = (await nfs.TIMESTAMP()).toString();
     console.log(`RAND_PRIME: ${existingPrime}`);
     console.log(`TIMESTAMP: ${existingTimestamp}`);
+    console.log(`CONTRACT_ADDRESS: ${nfs.address}`);
+    console.log(`BASE_URI: ${await nfs.baseURI()}`);
     callback(0);
   } catch (error) {
     console.error(error);
