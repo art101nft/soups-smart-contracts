@@ -28,7 +28,7 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     bool public soupHodlersMode = true;
     bool public placeholderEnabled = true;
     string public baseURI = "ipfs://xxxx/";
-    string public tempURI = "ipfs://QmfUPAFiRfhVpyFtkvqE8WHcZYRSRTbUrdJMcboLiqSQpK";
+    string public tempURI = "ipfs://yyyy";
     uint256 public RAND_PRIME;
     uint256 public TIMESTAMP;
     uint256 public constant maxItemPurchase = 3;
@@ -63,29 +63,30 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         return tokenIndexesById[tokenId] > 0;
     }
 
-    // Explicit functions to pause or resume the sale
-    function pauseSale() external onlyOwner {
+    // Toggle salesActive
+    function toggleSale() external onlyOwner {
         if (salesActive) {
             salesActive = false;
-        }
-    }
-
-    function resumeSale() external onlyOwner {
-        if (!salesActive) {
+        } else {
             salesActive = true;
         }
     }
 
-    // Explicit functions to enable or disable soupHodlersMode
-    function disableSHM() external onlyOwner {
+    // Toggle soupHodlersMode
+    function toggleSHM() external onlyOwner {
         if (soupHodlersMode) {
             soupHodlersMode = false;
+        } else {
+            soupHodlersMode = true;
         }
     }
 
-    function enableSHM() external onlyOwner {
-        if (!soupHodlersMode) {
-            soupHodlersMode = true;
+    // Toggle placeholderEnabled
+    function togglePlaceholder() external onlyOwner {
+        if (placeholderEnabled) {
+            placeholderEnabled = false;
+        } else {
+            placeholderEnabled = true;
         }
     }
 
@@ -125,6 +126,7 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
                 } else {
                     require(soupAddressByTokenId[tokenId] == msg.sender, "Token already associated with another sender");
                 }
+                require(totalSupply().add(numberOfTokens) <= _nfs.totalSupply(), "Cannot mint more Mondrians than Soups that exist");
             }
 
             // Lock in sender's balance
