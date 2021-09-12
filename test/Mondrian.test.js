@@ -36,6 +36,12 @@ contract('Mondrian', function ([owner, other]) {
     ).to.equal(true);
   });
 
+  it('item maxes and accounting enforcement upon launch', async function () {
+    await expect(
+      await this.mnd.maxItemsEnforced()
+    ).to.equal(true);
+  });
+
   // ownership checks
 
   it('non owner cannot toggle contract boolean states', async function () {
@@ -49,6 +55,10 @@ contract('Mondrian', function ([owner, other]) {
     );
     await expectRevert(
       this.mnd.togglePlaceholder({from: other}),
+      'Ownable: caller is not the owner',
+    );
+    await expectRevert(
+      this.mnd.toggleMaxEnforced({from: other}),
       'Ownable: caller is not the owner',
     );
   });
@@ -71,6 +81,9 @@ contract('Mondrian', function ([owner, other]) {
   // toggle func checks
 
   it('toggleSale function changes salesActive bool', async function () {
+    await expect(
+      await this.mnd.salesActive()
+    ).to.equal(false);
     await this.mnd.toggleSale();
     await expect(
       await this.mnd.salesActive()
@@ -81,7 +94,24 @@ contract('Mondrian', function ([owner, other]) {
     ).to.equal(false);
   });
 
+  it('toggleMaxEnforced function changes maxItemsEnforced bool', async function () {
+    await expect(
+      await this.mnd.maxItemsEnforced()
+    ).to.equal(true);
+    await this.mnd.toggleMaxEnforced();
+    await expect(
+      await this.mnd.maxItemsEnforced()
+    ).to.equal(false);
+    await this.mnd.toggleMaxEnforced();
+    await expect(
+      await this.mnd.maxItemsEnforced()
+    ).to.equal(true);
+  });
+
   it('toggleSHM function changes soupHodlersMode bool', async function () {
+    await expect(
+      await this.mnd.soupHodlersMode()
+    ).to.equal(true);
     await this.mnd.toggleSHM();
     await expect(
       await this.mnd.soupHodlersMode()
@@ -92,15 +122,27 @@ contract('Mondrian', function ([owner, other]) {
     ).to.equal(true);
   });
 
-  it('toggleSHM function changes soupHodlersMode bool', async function () {
+  it('togglePlaceholder function changes metadata baseURI', async function () {
+    // Enabled by default
+    await expect(
+        await this.mnd.tokenURI(1)
+    ).to.equal('ipfs://yyyy');
+    // Toggling should return full IPFS url
     await this.mnd.togglePlaceholder();
     await expect(
       await this.mnd.placeholderEnabled()
     ).to.equal(false);
+    await expect(
+        await this.mnd.tokenURI(1)
+    ).to.equal('ipfs://xxxx/1');
+    // Toggling should flip back
     await this.mnd.togglePlaceholder();
     await expect(
       await this.mnd.placeholderEnabled()
     ).to.equal(true);
+    await expect(
+        await this.mnd.tokenURI(1)
+    ).to.equal('ipfs://yyyy');
   });
 
   // setRandPrime func checks
@@ -200,7 +242,7 @@ contract('Mondrian', function ([owner, other]) {
 
   // mintItem func checks
 
-  it('mintItem func will revert if tokenIds list is empty', async function () {
+  it('mintItem func will revert if tokenIds list is empty while in soupHodlersMode', async function () {
     await this.mnd.setRandPrime(examplePrime);
     await this.mnd.toggleSale();
     await expectRevert(
@@ -230,14 +272,70 @@ contract('Mondrian', function ([owner, other]) {
     );
   });
 
-  it('mintItem func will revert if numberOfTokens arg exceeds max', async function () {
+  it('mintItem func will revert if numberOfTokens arg exceeds max per address', async function () {
     await this.mnd.setRandPrime(examplePrime);
     await this.mnd.toggleSHM();
     await this.mnd.toggleSale();
     await expectRevert(
       this.mnd.mintItem(4, [], {value: 0}),
-      'Can only mint 3 items at a time'
+      'Minting would exceed allowance set in contract since the max is being enforced'
     );
+  });
+
+  it('mintItem func will revert if minting would exceed soup balance per address when in soupHodlersMode', async function () {
+    // Mint 6 Soups
+    await this.nfs.setRandPrime(examplePrime);
+    await this.nfs.mintItem(3, {value: 0});
+    await this.nfs.mintItem(3, {value: 0});
+    await this.nfs.mintItem(3, {value: 0, from: other});
+    const mintOne = await this.nfs.tokenOfOwnerByIndex(owner, 0);
+    const mintTwo = await this.nfs.tokenOfOwnerByIndex(owner, 1);
+
+    // Begin Mondrians
+    await this.mnd.setRandPrime(examplePrime);
+    await this.mnd.toggleSale();
+    await this.mnd.mintItem(3, [mintOne], {value: 0});
+    await this.mnd.mintItem(3, [mintTwo], {value: 0});
+    await expect(
+      (await this.mnd.balanceOf(owner)).toString()
+    ).to.equal('6');
+    await expectRevert(
+      this.mnd.mintItem(2, [mintOne], {value: 0}),
+      'Minting would exceed allowance set in contract based upon your balance of Soups (NFS)'
+    );
+  });
+
+  it('mintItem func will revert if minting would exceed 3 max per address when not in soupHodlersMode and enforcement on (default)', async function () {
+    await this.mnd.setRandPrime(examplePrime);
+    await this.mnd.toggleSHM();
+    await this.mnd.toggleSale();
+    await this.mnd.mintItem(2, [], {value: 0});
+    await expectRevert(
+      this.mnd.mintItem(2, [], {value: 0}),
+      'Minting would exceed allowance set in contract since the max is being enforced'
+    );
+  });
+
+  it('mintItem func lets you mint any when maxItemsEnforced is toggled off (false)', async function () {
+    await this.mnd.setRandPrime(examplePrime);
+    await this.mnd.toggleSHM();
+    await this.mnd.toggleSale();
+    await this.mnd.toggleMaxEnforced();
+    let res1 = await this.mnd.mintItem(3, [], {value: 0});
+    await expectEvent(
+      res1, 'Transfer'
+    );
+    let res2 = await this.mnd.mintItem(3, [], {value: 0});
+    await expectEvent(
+      res2, 'Transfer'
+    );
+    let res3 = await this.mnd.mintItem(3, [], {value: 0});
+    await expectEvent(
+      res3, 'Transfer'
+    );
+    await expect(
+      (await this.mnd.balanceOf(owner)).toString()
+    ).to.equal('9');
   });
 
   it('mintItem func will revert if the soup token has been used before', async function () {
@@ -292,6 +390,7 @@ contract('Mondrian', function ([owner, other]) {
     console.log(`Minting as many Mondrians as Soups (2048).`);
     await this.mnd.setRandPrime(examplePrime);
     await this.mnd.toggleSale();
+    await this.mnd.toggleMaxEnforced();
     for (i = 0; i < 1024; i++) {
       let tokenId = await this.nfs.tokenOfOwnerByIndex(owner, i);
       let res = await this.mnd.mintItem(2, [tokenId], {value: 0});
@@ -357,6 +456,7 @@ contract('Mondrian', function ([owner, other]) {
     // Begin minting the MND tokens referencing NFS tokens
     console.log(`Minting half as many Mondrians as Soups (1024).`);
     await this.mnd.setRandPrime(examplePrime);
+    await this.mnd.toggleMaxEnforced();
     await this.mnd.toggleSale();
     for (i = 0; i < 1024; i++) {
       let tokenId = await this.nfs.tokenOfOwnerByIndex(owner, i);
