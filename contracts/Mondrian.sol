@@ -19,6 +19,10 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     mapping (uint256 => uint256) tokenIdsByIndex;
     mapping (uint256 => uint256) tokenIndexesById;
 
+    // Keep track of wallet mints to limit wallets loading up
+    mapping (address => uint256) phaseOneMondrianBalanceByAddress;
+    mapping (address => uint256) phaseTwoMondrianBalanceByAddress;
+
     // Keep track of senders and soup balances
     mapping (address => uint256) soupBalanceByAddress;
     mapping (uint256 => address) soupAddressByTokenId;
@@ -27,6 +31,7 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     bool public salesActive = false;
     bool public soupHodlersMode = true;
     bool public placeholderEnabled = true;
+    bool public maxItemsEnforced = true;
     string public baseURI = "ipfs://xxxx/";
     string public tempURI = "ipfs://yyyy";
     uint256 public RAND_PRIME;
@@ -63,7 +68,8 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         return tokenIndexesById[tokenId] > 0;
     }
 
-    // Toggle salesActive
+    // bool toggles
+
     function toggleSale() external onlyOwner {
         if (salesActive) {
             salesActive = false;
@@ -72,7 +78,14 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         }
     }
 
-    // Toggle soupHodlersMode
+    function toggleMaxEnforced() external onlyOwner {
+        if (maxItemsEnforced) {
+            maxItemsEnforced = false;
+        } else {
+            maxItemsEnforced = true;
+        }
+    }
+
     function toggleSHM() external onlyOwner {
         if (soupHodlersMode) {
             soupHodlersMode = false;
@@ -81,7 +94,6 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         }
     }
 
-    // Toggle placeholderEnabled
     function togglePlaceholder() external onlyOwner {
         if (placeholderEnabled) {
             placeholderEnabled = false;
@@ -133,8 +145,12 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
             if (soupBalanceByAddress[msg.sender] == 0) {
                 soupBalanceByAddress[msg.sender] = _nfs.balanceOf(msg.sender);
             }
-            uint256 allottedMints = soupBalanceByAddress[msg.sender] - balanceOf(msg.sender);
-            require(numberOfTokens <= allottedMints, "Minting would exceed senders allotment");
+            uint256 allottedMints = soupBalanceByAddress[msg.sender] - phaseOneMondrianBalanceByAddress[msg.sender];
+            require(numberOfTokens <= allottedMints, "Minting would exceed allowance set in contract based upon your balance of Soups (NFS)");
+        } else {
+            if (maxItemsEnforced) {
+                require(phaseTwoMondrianBalanceByAddress[msg.sender].add(numberOfTokens) <= maxItemPurchase, "Minting would exceed allowance set in contract since the max is being enforced");
+            }
         }
 
         // Ensure other conditions are met before proceeding
@@ -165,6 +181,14 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
                 // Save the respective index and token Id for future reference
                 tokenIdsByIndex[index] = tokenId;
                 tokenIndexesById[tokenId] = index;
+
+                // Tally mints per address - SHM toggle allows for reset to 0 for hodlers
+                if (soupHodlersMode) {
+                    phaseOneMondrianBalanceByAddress[msg.sender] = phaseOneMondrianBalanceByAddress[msg.sender].add(1);
+                } else {
+                    phaseTwoMondrianBalanceByAddress[msg.sender] = phaseTwoMondrianBalanceByAddress[msg.sender].add(1);
+                }
+
             }
         }
     }
