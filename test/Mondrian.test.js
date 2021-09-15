@@ -288,21 +288,42 @@ contract('Mondrian', function ([owner, other]) {
     await this.nfs.mintItem(3, {value: 0});
     await this.nfs.mintItem(3, {value: 0});
     await this.nfs.mintItem(3, {value: 0, from: other});
-    const mintOne = await this.nfs.tokenOfOwnerByIndex(owner, 0);
-    const mintTwo = await this.nfs.tokenOfOwnerByIndex(owner, 1);
+    const mintFive = await this.nfs.tokenOfOwnerByIndex(owner, 4);
+    const mintSix = await this.nfs.tokenOfOwnerByIndex(owner, 5);
 
-    // Begin Mondrians
+
+    // Begin Mondrians - only mint 5 out of 6
     await this.mnd.setRandPrime(examplePrime);
     await this.mnd.toggleSale();
-    await this.mnd.mintItem(3, [mintOne], {value: 0});
-    await this.mnd.mintItem(3, [mintTwo], {value: 0});
+    for (i = 0; i < 5; i++) {
+      let tokenId = await this.nfs.tokenOfOwnerByIndex(owner, i);
+      console.log(`Minting 1 mondrian using soup token Id ${tokenId}`);
+      let res = await this.mnd.mintItem(1, [tokenId], {value: 0});
+      await expectEvent(
+        res, 'Transfer'
+      );
+    }
+    await expect(
+      (await this.mnd.balanceOf(owner)).toString()
+    ).to.equal('5');
+    console.log('should have 5 mondrians at this point');
+    // Requesting 2 more would go over max (7 instead of 6) and should fail - with both items
+    await expectRevert(
+      this.mnd.mintItem(2, [mintSix, mintFive], {value: 0}),
+      'Minting would exceed allowance set in contract based upon your balance of Soups (NFS)'
+    );
+    // Requesting 2 more would go over max (7 instead of 6) and should fail - with one soup but 2 requested
+    await expectRevert(
+      this.mnd.mintItem(2, [mintSix], {value: 0}),
+      'Number of tokens requested must be equal to number of soup token Ids provided'
+    );
+    let res = await this.mnd.mintItem(1, [mintSix], {value: 0});
+    await expectEvent(
+      res, 'Transfer'
+    );
     await expect(
       (await this.mnd.balanceOf(owner)).toString()
     ).to.equal('6');
-    await expectRevert(
-      this.mnd.mintItem(2, [mintOne], {value: 0}),
-      'Minting would exceed allowance set in contract based upon your balance of Soups (NFS)'
-    );
   });
 
   it('mintItem func will revert if minting would exceed 3 max per address when not in soupHodlersMode and enforcement on (default)', async function () {
@@ -366,7 +387,6 @@ contract('Mondrian', function ([owner, other]) {
     await this.mnd.toggleSale();
     console.log('Mint 1 Mondrian as a fake hodler - should fail');
     let tokenId = await this.nfs.tokenOfOwnerByIndex(owner, 0);
-    await this.mnd.mintItem(1, [tokenId], {value: 0});
     await expectRevert(
       this.mnd.mintItem(1, [tokenId], {value: 0, from: other}),
       'Sender is not the owner of provided soup'
@@ -391,9 +411,9 @@ contract('Mondrian', function ([owner, other]) {
     await this.mnd.setRandPrime(examplePrime);
     await this.mnd.toggleSale();
     await this.mnd.toggleMaxEnforced();
-    for (i = 0; i < 1024; i++) {
+    for (i = 0; i < 2048; i++) {
       let tokenId = await this.nfs.tokenOfOwnerByIndex(owner, i);
-      let res = await this.mnd.mintItem(2, [tokenId], {value: 0});
+      let res = await this.mnd.mintItem(1, [tokenId], {value: 0});
       await expectEvent(
         res, 'Transfer'
       );

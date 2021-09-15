@@ -128,23 +128,21 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         // Ensure sender is a soup hodler and save tokens to prevent reuse
         if (soupHodlersMode) {
             require(tokenIds.length > 0, "Must provide at least 1 token id");
+            require(tokenIds.length == numberOfTokens, "Number of tokens requested must be equal to number of soup token Ids provided");
             // Loop through the provided tokens to ensure the sender owns them
             for(uint256 i = 0; i < tokenIds.length; i++) {
                 uint256 tokenId = tokenIds[i];
                 require(_nfs.ownerOf(tokenId) == msg.sender, "Sender is not the owner of provided soup");
-                // Lock in token Id to sender's address
+                // Lock in token Id to sender's address and update soup balance
                 if (soupAddressByTokenId[tokenId] == address(0x0)) {
                     soupAddressByTokenId[tokenId] = msg.sender;
+                    soupBalanceByAddress[msg.sender] = soupBalanceByAddress[msg.sender].add(1);
                 } else {
                     require(soupAddressByTokenId[tokenId] == msg.sender, "Token already associated with another sender");
                 }
                 require(totalSupply().add(numberOfTokens) <= _nfs.totalSupply(), "Cannot mint more Mondrians than Soups that exist");
             }
 
-            // Lock in sender's balance
-            if (soupBalanceByAddress[msg.sender] == 0) {
-                soupBalanceByAddress[msg.sender] = _nfs.balanceOf(msg.sender);
-            }
             uint256 allottedMints = soupBalanceByAddress[msg.sender] - phaseOneMondrianBalanceByAddress[msg.sender];
             require(numberOfTokens <= allottedMints, "Minting would exceed allowance set in contract based upon your balance of Soups (NFS)");
         } else {
