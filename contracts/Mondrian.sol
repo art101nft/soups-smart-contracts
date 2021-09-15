@@ -68,6 +68,16 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         return tokenIndexesById[tokenId] > 0;
     }
 
+    // Check if a given Non-Fungible Soup tokenId has been minted already
+    function checkSoupTokenIsClaimed(uint256 tokenId) public view returns(bool) {
+        require(tokenId > 0 && tokenId <= 2048, "Provided tokenId is not allowed");
+        if (soupAddressByTokenId[tokenId] == address(0x0)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     // bool toggles
 
     function toggleSale() external onlyOwner {

@@ -240,6 +240,21 @@ contract('Mondrian', function ([owner, other]) {
     );
   });
 
+  // checkSoupTokenIsClaimed func checks
+  it('checkSoupTokenIsClaimed func will return true if a given soup has been claimed for a mondrian', async function () {
+    // Mint a soup
+    await this.nfs.setRandPrime(examplePrime);
+    await this.nfs.mintItem(1, {value: 0});
+    const tokenId = await this.nfs.tokenOfOwnerByIndex(owner, 0);
+    // Mint a mondrian and claim the soup
+    await this.mnd.setRandPrime(examplePrime);
+    await this.mnd.toggleSale();
+    await this.mnd.mintItem(1, [tokenId], {value: 0});
+    await expect(
+      await this.mnd.checkSoupTokenIsClaimed(tokenId)
+    ).to.equal(true);
+  })
+
   // mintItem func checks
 
   it('mintItem func will revert if tokenIds list is empty while in soupHodlersMode', async function () {
