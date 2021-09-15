@@ -5,10 +5,10 @@ module.exports = async function main(callback) {
     const shmEnabled = await mnd.soupHodlersMode();
     console.log(`[+] Toggling soupHodlersMode. Currently: ${shmEnabled}`);
     if (shmEnabled) {
-      await mnd.disableSHM();
+      await mnd.toggleSHM();
       console.log(`Soups disabled!`);
     } else {
-      await mnd.enableSHM();
+      await mnd.toggleSHM();
       console.log(`Soups enabled!`);
     }
     callback(0);
