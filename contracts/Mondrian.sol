@@ -30,10 +30,8 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     // Define starting values for contract
     bool public salesActive = false;
     bool public soupHodlersMode = true;
-    bool public placeholderEnabled = false;
     bool public maxItemsEnforced = true;
-    string public baseURI = "ipfs://xxxx/";
-    string public tempURI = "ipfs://yyyy";
+    string public baseURI = "ipfs://QmezMRKpwQvYMaBoJBCmjD58f7RkYQvirKUccsCN7U7Ksg/";
     uint256 public RAND_PRIME;
     uint256 public TIMESTAMP;
     uint256 public constant maxItemPurchase = 3;
@@ -113,14 +111,6 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         }
     }
 
-    function togglePlaceholder() external onlyOwner {
-        if (placeholderEnabled) {
-            placeholderEnabled = false;
-        } else {
-            placeholderEnabled = true;
-        }
-    }
-
     // Specify a randomly generated prime number (off-chain), only once
     function setRandPrime(uint256 randPrime) public onlyOwner {
         if (RAND_PRIME == 0) {
@@ -128,13 +118,9 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         }
     }
 
-    // Set a new base and temp metadata URI to be used for all NFTs
+    // Set a new base metadata URI to be used for all NFTs
     function setBaseURI(string memory URI) public onlyOwner {
         baseURI = URI;
-    }
-
-    function setTempURI(string memory URI) public onlyOwner {
-        tempURI = URI;
     }
 
     // Mint N number of items when invoked
@@ -220,11 +206,7 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         override(ERC721, ERC721URIStorage)
         returns (string memory)
     {
-        if (placeholderEnabled) {
-            return string(abi.encodePacked(tempURI));
-        } else {
-            return string(abi.encodePacked(baseURI, Strings.toString(tokenId)));
-        }
+        return string(abi.encodePacked(baseURI, Strings.toString(tokenId)));
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId)

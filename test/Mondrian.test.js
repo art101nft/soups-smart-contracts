@@ -30,12 +30,6 @@ contract('Mondrian', function ([owner, other]) {
     ).to.equal(true);
   });
 
-  it('placeholders are disabled upon launch', async function () {
-    await expect(
-      await this.mnd.placeholderEnabled()
-    ).to.equal(false);
-  });
-
   it('item maxes and accounting enforcement upon launch', async function () {
     await expect(
       await this.mnd.maxItemsEnforced()
@@ -54,22 +48,14 @@ contract('Mondrian', function ([owner, other]) {
       'Ownable: caller is not the owner',
     );
     await expectRevert(
-      this.mnd.togglePlaceholder({from: other}),
-      'Ownable: caller is not the owner',
-    );
-    await expectRevert(
       this.mnd.toggleMaxEnforced({from: other}),
       'Ownable: caller is not the owner',
     );
   });
 
-  it('non owner cannot set the random prime number, temp URI, or base URI', async function () {
+  it('non owner cannot set the random prime number, or base URI', async function () {
     await expectRevert(
       this.mnd.setRandPrime(911, {from: other}),
-      'Ownable: caller is not the owner',
-    );
-    await expectRevert(
-      this.mnd.setTempURI("ipfs://mynewhash", {from: other}),
       'Ownable: caller is not the owner',
     );
     await expectRevert(
@@ -122,28 +108,6 @@ contract('Mondrian', function ([owner, other]) {
     ).to.equal(true);
   });
 
-  it('togglePlaceholder function changes metadata baseURI', async function () {
-    // Enabled by default
-    await expect(
-        await this.mnd.tokenURI(1)
-    ).to.equal('ipfs://xxxx/1');
-    await this.mnd.togglePlaceholder();
-    await expect(
-        await this.mnd.tokenURI(1)
-    ).to.equal('ipfs://yyyy');
-    await expect(
-      await this.mnd.placeholderEnabled()
-    ).to.equal(true);
-    // Toggling should flip back
-    await this.mnd.togglePlaceholder();
-    await expect(
-      await this.mnd.placeholderEnabled()
-    ).to.equal(false);
-    await expect(
-        await this.mnd.tokenURI(1)
-    ).to.equal('ipfs://xxxx/1');
-  });
-
   // setRandPrime func checks
 
   it('setRandPrime function will set RAND_PRIME variable', async function () {
@@ -161,7 +125,7 @@ contract('Mondrian', function ([owner, other]) {
     ).to.be.bignumber.equal(examplePrime);
   });
 
-  // setBaseURI/setTempURI func checks
+  // setBaseURI func checks
 
   it('setBaseURI function will set new metadata URI for NFTs', async function () {
     await this.mnd.setBaseURI(exampleURI);
@@ -171,17 +135,6 @@ contract('Mondrian', function ([owner, other]) {
     await expect(
       await this.mnd.tokenURI(2048)
     ).to.equal(exampleURI + '2048');
-  });
-
-  it('setTempURI function will set new metadata URI for NFTs', async function () {
-    await this.mnd.togglePlaceholder();
-    await this.mnd.setTempURI(exampleURI);
-    await expect(
-      await this.mnd.tokenURI(1)
-    ).to.equal(exampleURI);
-    await expect(
-      await this.mnd.tokenURI(2048)
-    ).to.equal(exampleURI);
   });
 
   // checkTokenIsMinted func checks
