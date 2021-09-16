@@ -30,7 +30,7 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     // Define starting values for contract
     bool public salesActive = false;
     bool public soupHodlersMode = true;
-    bool public placeholderEnabled = true;
+    bool public placeholderEnabled = false;
     bool public maxItemsEnforced = true;
     string public baseURI = "ipfs://xxxx/";
     string public tempURI = "ipfs://yyyy";

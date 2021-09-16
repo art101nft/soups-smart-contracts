@@ -30,10 +30,10 @@ contract('Mondrian', function ([owner, other]) {
     ).to.equal(true);
   });
 
-  it('placeholders are enabled upon launch', async function () {
+  it('placeholders are disabled upon launch', async function () {
     await expect(
       await this.mnd.placeholderEnabled()
-    ).to.equal(true);
+    ).to.equal(false);
   });
 
   it('item maxes and accounting enforcement upon launch', async function () {
@@ -126,8 +126,15 @@ contract('Mondrian', function ([owner, other]) {
     // Enabled by default
     await expect(
         await this.mnd.tokenURI(1)
+    ).to.equal('ipfs://xxxx/1');
+    await this.mnd.togglePlaceholder();
+    await expect(
+        await this.mnd.tokenURI(1)
     ).to.equal('ipfs://yyyy');
-    // Toggling should return full IPFS url
+    await expect(
+      await this.mnd.placeholderEnabled()
+    ).to.equal(true);
+    // Toggling should flip back
     await this.mnd.togglePlaceholder();
     await expect(
       await this.mnd.placeholderEnabled()
@@ -135,14 +142,6 @@ contract('Mondrian', function ([owner, other]) {
     await expect(
         await this.mnd.tokenURI(1)
     ).to.equal('ipfs://xxxx/1');
-    // Toggling should flip back
-    await this.mnd.togglePlaceholder();
-    await expect(
-      await this.mnd.placeholderEnabled()
-    ).to.equal(true);
-    await expect(
-        await this.mnd.tokenURI(1)
-    ).to.equal('ipfs://yyyy');
   });
 
   // setRandPrime func checks
@@ -165,7 +164,6 @@ contract('Mondrian', function ([owner, other]) {
   // setBaseURI/setTempURI func checks
 
   it('setBaseURI function will set new metadata URI for NFTs', async function () {
-    await this.mnd.togglePlaceholder();
     await this.mnd.setBaseURI(exampleURI);
     await expect(
       await this.mnd.tokenURI(1)
@@ -176,6 +174,7 @@ contract('Mondrian', function ([owner, other]) {
   });
 
   it('setTempURI function will set new metadata URI for NFTs', async function () {
+    await this.mnd.togglePlaceholder();
     await this.mnd.setTempURI(exampleURI);
     await expect(
       await this.mnd.tokenURI(1)
