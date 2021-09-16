@@ -6,10 +6,10 @@ module.exports = async function main(callback) {
     console.log(`[+] Toggling soupHodlersMode. Currently: ${shmEnabled}`);
     if (shmEnabled) {
       await mnd.toggleSHM();
-      console.log(`Soups disabled!`);
+      console.log(`Soup hodlers mode disabled!`);
     } else {
       await mnd.toggleSHM();
-      console.log(`Soups enabled!`);
+      console.log(`Soup hodlers mode enabled!`);
     }
     callback(0);
   } catch (error) {

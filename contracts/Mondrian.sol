@@ -44,6 +44,15 @@ contract Mondrian is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         _nfs = nfs;
     }
 
+    // Get balances from the tally and not necessarily balanceOf
+    function getMondrianBalance(bool phaseTwo, address _a) public view returns(uint256) {
+        if (phaseTwo) {
+            return phaseTwoMondrianBalanceByAddress[_a];
+        } else {
+            return phaseOneMondrianBalanceByAddress[_a];
+        }
+    }
+
     // Return tokenId based upon provided index
     function getTokenId(uint256 index) public view returns(uint256) {
         require(index > 0 && index <= MAX_ITEMS, "Provided token index is not allowed");
