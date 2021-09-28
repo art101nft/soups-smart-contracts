@@ -6,3 +6,6 @@ node_modules/
 data
 package-lock.json
 *.tar.gz
+.venv
+addr-to-claim.json
+output.json
