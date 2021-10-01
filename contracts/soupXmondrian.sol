@@ -20,6 +20,7 @@ contract soupXmondrian is ERC1155, Ownable {
 
     // Define starting contract state
     bytes32 merkleRoot;
+    bool merkleSet = false;
     bool public salesActive = false;
     string public baseURI = "ipfs://QmRTqBFtst7j1Yj63xDXDEmg43rethZ8dAAy4WDvwieqKo/{id}";
 
@@ -45,6 +46,12 @@ contract soupXmondrian is ERC1155, Ownable {
     // https://github.com/0xKiwi/go-merkle-distributor
     function setMerkleRoot(bytes32 root) public onlyOwner {
         merkleRoot = root;
+        merkleSet = true;
+    }
+
+    // Return bool on if merkle root hash is set
+    function isMerkleSet() public view returns (bool) {
+        return merkleSet;
     }
 
     // Check if an index has claimed tokens
@@ -79,7 +86,7 @@ contract soupXmondrian is ERC1155, Ownable {
 
         // Mint tokens, ensuring uniques if multiple
         for(uint256 i = 0; i < amount; i++) {
-            uint256 tokenId = ((block.timestamp + i) % 3) + 1;
+            uint256 tokenId = ((block.number + i) % 3) + 1;
             _mint(msg.sender, tokenId, 1, "");
         }
     }
