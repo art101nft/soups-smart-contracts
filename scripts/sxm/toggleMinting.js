@@ -6,10 +6,10 @@ module.exports = async function main(callback) {
     console.log(`[+] Toggling mintingActive. Currently: ${mintingActive}`);
     if (mintingActive) {
       await sxm.toggleMinting();
-      console.log(`Sales disabled!`);
+      console.log(`Minting disabled!`);
     } else {
       await sxm.toggleMinting();
-      console.log(`Sales enabled!`);
+      console.log(`Minting enabled!`);
     }
     callback(0);
   } catch (error) {
