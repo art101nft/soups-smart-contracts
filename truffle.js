@@ -23,6 +23,7 @@ module.exports = {
       timeoutBlocks: 30,
       skipDryRun: false,
       production: true,
+      gasPrice: 100000000000
     },
   },
   mocha: {
