@@ -44,7 +44,7 @@ contract soupXmondrian is ERC1155, Ownable {
     // Specify a merkle root hash from the gathered k/v dictionary of
     // addresses and their claimable amount of tokens - thanks Kiwi!
     // https://github.com/0xKiwi/go-merkle-distributor
-    function setMerkleRoot(bytes32 root) public onlyOwner {
+    function setMerkleRoot(bytes32 root) external onlyOwner {
         merkleRoot = root;
         merkleSet = true;
     }
