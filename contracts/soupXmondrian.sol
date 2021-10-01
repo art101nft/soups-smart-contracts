@@ -21,17 +21,17 @@ contract soupXmondrian is ERC1155, Ownable {
     // Define starting contract state
     bytes32 merkleRoot;
     bool merkleSet = false;
-    bool public salesActive = false;
+    bool public mintingActive = false;
     string public baseURI = "ipfs://QmRTqBFtst7j1Yj63xDXDEmg43rethZ8dAAy4WDvwieqKo/{id}";
 
     constructor() ERC1155(baseURI) {}
 
-    // Flip the sale from active or pause
-    function toggleSale() external onlyOwner {
-        if (salesActive) {
-            salesActive = false;
+    // Flip the minting from active or pause
+    function toggleMinting() external onlyOwner {
+        if (mintingActive) {
+            mintingActive = false;
         } else {
-            salesActive = true;
+            mintingActive = true;
         }
     }
 
@@ -72,7 +72,7 @@ contract soupXmondrian is ERC1155, Ownable {
 
     // Mint and claim tokens
     function mintItem(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external {
-        require(salesActive, "Sale must be active");
+        require(mintingActive, "Minting must be active");
         require(amount <= 2, "Max amount that can be claimed is 2");
         require(msg.sender == account, "Can only be claimed by the hodler");
         require(!isClaimed(index), "Drop already claimed");
