@@ -23,9 +23,9 @@ contract('Bauhaus', function ([owner, other]) {
     ).to.equal(false);
   });
 
-  it('preaccessMode is enabled upon launch', async function () {
+  it('earlyAccessMode is enabled upon launch', async function () {
     await expect(
-      await this.contract.preaccessMode()
+      await this.contract.earlyAccessMode()
     ).to.equal(true);
   });
 
@@ -37,7 +37,7 @@ contract('Bauhaus', function ([owner, other]) {
       'Ownable: caller is not the owner',
     );
     await expectRevert(
-      this.contract.togglePreaccess({from: other}),
+      this.contract.toggleEarlyAccessMode({from: other}),
       'Ownable: caller is not the owner',
     );
   });
@@ -69,17 +69,17 @@ contract('Bauhaus', function ([owner, other]) {
     ).to.equal(false);
   });
 
-  it('togglePreaccess function changes preaccessMode bool', async function () {
+  it('toggleEarlyAccessMode function changes earlyAccessMode bool', async function () {
     await expect(
-      await this.contract.preaccessMode()
+      await this.contract.earlyAccessMode()
     ).to.equal(true);
-    await this.contract.togglePreaccess();
+    await this.contract.toggleEarlyAccessMode();
     await expect(
-      await this.contract.preaccessMode()
+      await this.contract.earlyAccessMode()
     ).to.equal(false);
-    await this.contract.togglePreaccess();
+    await this.contract.toggleEarlyAccessMode();
     await expect(
-      await this.contract.preaccessMode()
+      await this.contract.earlyAccessMode()
     ).to.equal(true);
   });
 
@@ -114,7 +114,7 @@ contract('Bauhaus', function ([owner, other]) {
 
   // mintItem func checks
 
-  it('mintItem func will revert if merkle proof array is empty while in preaccessMode', async function () {
+  it('mintItem func will revert if merkle proof array is empty while in earlyAccessMode', async function () {
     await this.contract.setRandPrime(examplePrime);
     await this.contract.toggleMinting();
     await expectRevert(
@@ -124,7 +124,7 @@ contract('Bauhaus', function ([owner, other]) {
   });
 
   it('mintItem func will revert if randPrime not set', async function () {
-    await this.contract.togglePreaccess();
+    await this.contract.toggleEarlyAccessMode();
     await this.contract.toggleMinting();
     await expectRevert(
       this.contract.mintItem(0, other, 1, [], 1, {value: 0, from: other}),
@@ -134,7 +134,7 @@ contract('Bauhaus', function ([owner, other]) {
 
   it('mintItem func will revert if mintingActive is false', async function () {
     await this.contract.setRandPrime(examplePrime);
-    await this.contract.togglePreaccess();
+    await this.contract.toggleEarlyAccessMode();
     await expect(
       await this.contract.mintingActive()
     ).to.equal(false);
@@ -146,11 +146,15 @@ contract('Bauhaus', function ([owner, other]) {
 
   it('mintItem func will revert if numberOfTokens arg exceeds max or min per tx', async function () {
     await this.contract.setRandPrime(examplePrime);
-    await this.contract.togglePreaccess();
     await this.contract.toggleMinting();
     await expectRevert(
       this.contract.mintItem(0, other, 1, [], 21, {value: 0, from: other}),
       'Cannot mint more than 20 at a time'
+    );
+    await this.contract.toggleEarlyAccessMode();
+    await expectRevert(
+      this.contract.mintItem(0, other, 1, [], 20, {value: 0, from: other}),
+      'Cannot mint more than 6 at a time while not in early access mode'
     );
     await expectRevert(
       this.contract.mintItem(0, other, 1, [], 0, {value: 0, from: other}),
@@ -158,7 +162,7 @@ contract('Bauhaus', function ([owner, other]) {
     );
   });
 
-  // it('mintItem func will revert if minting would exceed soup balance per address when in preaccessMode', async function () {
+  // it('mintItem func will revert if minting would exceed soup balance per address when in earlyAccessMode', async function () {
   //   // Mint 6 Soups
   //   await this.nfs.setRandPrime(examplePrime);
   //   this.contract.mintItem(0, other, 1, [], 1, {value: 0, from: other}),
@@ -201,25 +205,25 @@ contract('Bauhaus', function ([owner, other]) {
   //   ).to.equal('6');
   // });
 
-  it('mintItem func lets you mint any when preaccessMode is off', async function () {
+  it('mintItem func lets you mint any when earlyAccessMode is off', async function () {
     await this.contract.setRandPrime(examplePrime);
-    await this.contract.togglePreaccess();
+    await this.contract.toggleEarlyAccessMode();
     await this.contract.toggleMinting();
-    let res1 = await this.contract.mintItem(0, other, 1, [], 20, {value: 0, from: other});
+    let res1 = await this.contract.mintItem(0, other, 1, [], 2, {value: 0, from: other});
     await expectEvent(
       res1, 'Transfer'
     );
-    let res2 = await this.contract.mintItem(0, other, 1, [], 20, {value: 0, from: other});
+    let res2 = await this.contract.mintItem(0, other, 1, [], 2, {value: 0, from: other});
     await expectEvent(
       res2, 'Transfer'
     );
-    let res3 = await this.contract.mintItem(0, other, 1, [], 20, {value: 0, from: other});
+    let res3 = await this.contract.mintItem(0, other, 1, [], 2, {value: 0, from: other});
     await expectEvent(
       res3, 'Transfer'
     );
     await expect(
       (await this.contract.balanceOf(other)).toString()
-    ).to.equal('60');
+    ).to.equal('6');
   });
 
   // it('mintItem func will revert if sender does not own all provided tokens', async function () {
@@ -236,33 +240,33 @@ contract('Bauhaus', function ([owner, other]) {
   //     'Sender is not the owner of provided soup'
   //   );
   // });
-
-  it('mintItem func will mint only up to 8192 items with preaccessMode enabled', async function () {
-    this.timeout(0); // dont timeout for this long test
-    await this.contract.setRandPrime(examplePrime);
-    await this.contract.toggleMinting();
-    await this.contract.togglePreaccess();
-    for (i = 0; i < 512; i++) {
-      // let tokenId = await this.contract.tokenOfOwnerByIndex(owner, i);
-      let res = await this.contract.mintItem(0, owner, 1, [], 16, {value: 0});
-      await expectEvent(
-        res, 'Transfer'
-      );
-    }
-
-    // We should have 8192 Bauhaus at this point but
-    // we're unable to proceed until disabling SHM.
-    console.log(`Expecting 8192 Bauhaus`);
-    await expect(
-      (await this.contract.totalSupply()).toString()
-    ).to.equal('8192');
-
-    // Try to mint past upper boundaries
-    console.log('Ensure it wont exceed max supply');
-    await expectRevert(
-      this.contract.mintItem(0, owner, 1, [], 1, {value: 0}),
-      'Minting would exceed max supply'
-    );
-  });
+  //
+  // it('mintItem func will mint only up to 8192 items with earlyAccessMode enabled', async function () {
+  //   this.timeout(0); // dont timeout for this long test
+  //   await this.contract.setRandPrime(examplePrime);
+  //   await this.contract.toggleMinting();
+  //   await this.contract.toggleEarlyAccessMode();
+  //   for (i = 0; i < 2048; i++) {
+  //     // let tokenId = await this.contract.tokenOfOwnerByIndex(owner, i);
+  //     let res = await this.contract.mintItem(0, owner, 1, [], 4, {value: 0});
+  //     await expectEvent(
+  //       res, 'Transfer'
+  //     );
+  //   }
+  //
+  //   // We should have 8192 Bauhaus at this point but
+  //   // we're unable to proceed until disabling SHM.
+  //   console.log(`Expecting 8192 Bauhaus`);
+  //   await expect(
+  //     (await this.contract.totalSupply()).toString()
+  //   ).to.equal('8192');
+  //
+  //   // Try to mint past upper boundaries
+  //   console.log('Ensure it wont exceed max supply');
+  //   await expectRevert(
+  //     this.contract.mintItem(0, owner, 1, [], 1, {value: 0}),
+  //     'Minting would exceed max supply'
+  //   );
+  // });
 
 });

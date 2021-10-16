@@ -22,8 +22,8 @@ contract Bauhaus is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     bytes32 merkleRoot;
     bool merkleSet = false;
     bool public mintingActive = false;
-    bool public preaccessMode = true;
-    string public baseURI = "ipfs://xxxx/{id}";
+    bool public earlyAccessMode = true;
+    string public baseURI = "ipfs://QmVwRivM4b48tYc9tp7ixMNHQJWkQunyWXonJowvtgfHFz/";
     uint256 public randPrime;
     uint256 public timestamp;
     uint256 public constant maxItemPurchase = 20;
@@ -46,13 +46,13 @@ contract Bauhaus is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         }
     }
 
-    // Flip the preaccess mode to allow/disallow public
+    // Flip the early access mode to allow/disallow public
     // minting instead of merkle-drop whitelist
-    function togglePreaccess() external onlyOwner {
-        if (preaccessMode) {
-            preaccessMode = false;
+    function toggleEarlyAccessMode() external onlyOwner {
+        if (earlyAccessMode) {
+            earlyAccessMode = false;
         } else {
-            preaccessMode = true;
+            earlyAccessMode = true;
         }
     }
 
@@ -98,14 +98,20 @@ contract Bauhaus is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     }
 
     // Mint and claim tokens
-    function mintItem(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 numberOfTokens) external {
+    function mintItem(
+      uint256 index,
+      address account,
+      uint256 amount,
+      bytes32[] calldata merkleProof,
+      uint256 numberOfTokens
+    ) external {
         require(numberOfTokens > 0, "Must provide at least 1");
         require(randPrime > 0, "Random prime number must be specified by contract operator before minting");
         require(mintingActive, "Minting must be active");
         require(numberOfTokens <= 20, "Cannot mint more than 20 at a time");
         require(totalSupply().add(numberOfTokens) <= maxItems, "Minting would exceed max supply");
 
-        if (preaccessMode) {
+        if (earlyAccessMode) {
             require(msg.sender == account, "Can only be claimed by the hodler");
             require(!isClaimed(index), "Drop already claimed");
             // Verify merkle proof
@@ -117,6 +123,8 @@ contract Bauhaus is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
             }
             // Ensure not trying to mint more than claimable
             require(amountClaimed[msg.sender].add(numberOfTokens) <= amountClaimable[msg.sender], "Cannot mint more than what is claimable");
+        } else {
+            require(numberOfTokens <= 6, "Cannot mint more than 6 at a time while not in early access mode");
         }
 
         // Specify the block timestamp of the first mint to define NFT distribution
@@ -131,10 +139,10 @@ contract Bauhaus is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
             uint256 seqOffset = seq + timestamp;
             uint256 tokenId = (seqOffset % maxItems) + 1; // Prevent tokenId 0
             if (totalSupply() < maxItems) {
-                // Mint and transfer to buyer
+                // Mint and transfer to the contract invoker
                 _safeMint(msg.sender, tokenId);
-                if (preaccessMode) {
-                    // Increment amount claimed counter
+                if (earlyAccessMode) {
+                    // Increment amount claimed counter while in earlyAccessMode
                     amountClaimed[msg.sender] = amountClaimed[msg.sender].add(1);
                     if (amountClaimed[msg.sender] == amountClaimable[msg.sender]) {
                         // Mark it claimed and proceed with minting
