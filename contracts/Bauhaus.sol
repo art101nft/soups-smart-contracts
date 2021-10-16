@@ -99,7 +99,7 @@ contract Bauhaus is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     // Mint and claim tokens
     function mintItem(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 numberOfTokens) external {
-        require(amount > 0, "Must provide at least 1");
+        require(numberOfTokens > 0, "Must provide at least 1");
         require(randPrime > 0, "Random prime number must be specified by contract operator before minting");
         require(mintingActive, "Minting must be active");
         require(numberOfTokens <= 20, "Cannot mint more than 20 at a time");

@@ -118,7 +118,7 @@ contract('Bauhaus', function ([owner, other]) {
     await this.contract.setRandPrime(examplePrime);
     await this.contract.toggleMinting();
     await expectRevert(
-      this.contract.mintItem(0, other, [], 1, {value: 0, from: other}),
+      this.contract.mintItem(0, other, 1, [], 1, {value: 0, from: other}),
       'Invalid proof'
     );
   });
@@ -127,7 +127,7 @@ contract('Bauhaus', function ([owner, other]) {
     await this.contract.togglePreaccess();
     await this.contract.toggleMinting();
     await expectRevert(
-      this.contract.mintItem(0, other, [], 1, {value: 0, from: other}),
+      this.contract.mintItem(0, other, 1, [], 1, {value: 0, from: other}),
       'Random prime number must be specified by contract operator before minting'
     );
   });
@@ -139,7 +139,7 @@ contract('Bauhaus', function ([owner, other]) {
       await this.contract.mintingActive()
     ).to.equal(false);
     await expectRevert(
-      this.contract.mintItem(0, other, [], 1, {value: 0, from: other}),
+      this.contract.mintItem(0, other, 1, [], 1, {value: 0, from: other}),
       'Minting must be active'
     );
   });
@@ -149,17 +149,19 @@ contract('Bauhaus', function ([owner, other]) {
     await this.contract.togglePreaccess();
     await this.contract.toggleMinting();
     await expectRevert(
-      this.contract.mintItem(0, other, [], 21, {value: 0, from: other}),
+      this.contract.mintItem(0, other, 1, [], 21, {value: 0, from: other}),
       'Cannot mint more than 20 at a time'
     );
+    await expectRevert(
+      this.contract.mintItem(0, other, 1, [], 0, {value: 0, from: other}),
+      'Must provide at least 1'
+    );
   });
-
-  Must provide at least 1
 
   // it('mintItem func will revert if minting would exceed soup balance per address when in preaccessMode', async function () {
   //   // Mint 6 Soups
   //   await this.nfs.setRandPrime(examplePrime);
-  //   this.contract.mintItem(0, other, [], 1, {value: 0, from: other}),
+  //   this.contract.mintItem(0, other, 1, [], 1, {value: 0, from: other}),
   //   await this.nfs.mintItem(3, {value: 0, from: other});
   //   const mintFive = await this.nfs.tokenOfOwnerByIndex(owner, 4);
   //   const mintSix = await this.nfs.tokenOfOwnerByIndex(owner, 5);
@@ -203,21 +205,21 @@ contract('Bauhaus', function ([owner, other]) {
     await this.contract.setRandPrime(examplePrime);
     await this.contract.togglePreaccess();
     await this.contract.toggleMinting();
-    let res1 = await this.contract.mintItem(0, other, [], 21, {value: 0, from: other}),
+    let res1 = await this.contract.mintItem(0, other, 1, [], 20, {value: 0, from: other});
     await expectEvent(
       res1, 'Transfer'
     );
-    let res2 = await this.contract.mintItem(0, other, [], 21, {value: 0, from: other}),
+    let res2 = await this.contract.mintItem(0, other, 1, [], 20, {value: 0, from: other});
     await expectEvent(
       res2, 'Transfer'
     );
-    let res3 = await this.contract.mintItem(0, other, [], 21, {value: 0, from: other}),
+    let res3 = await this.contract.mintItem(0, other, 1, [], 20, {value: 0, from: other});
     await expectEvent(
       res3, 'Transfer'
     );
     await expect(
       (await this.contract.balanceOf(other)).toString()
-    ).to.equal('9');
+    ).to.equal('60');
   });
 
   // it('mintItem func will revert if sender does not own all provided tokens', async function () {
@@ -242,7 +244,7 @@ contract('Bauhaus', function ([owner, other]) {
     await this.contract.togglePreaccess();
     for (i = 0; i < 512; i++) {
       // let tokenId = await this.contract.tokenOfOwnerByIndex(owner, i);
-      let res = await this.contract.mintItem(0, owner, [], 16, {value: 0}),
+      let res = await this.contract.mintItem(0, owner, 1, [], 16, {value: 0});
       await expectEvent(
         res, 'Transfer'
       );
@@ -258,7 +260,7 @@ contract('Bauhaus', function ([owner, other]) {
     // Try to mint past upper boundaries
     console.log('Ensure it wont exceed max supply');
     await expectRevert(
-      this.contract.mintItem(0, owner, [], 1, {value: 0}),
+      this.contract.mintItem(0, owner, 1, [], 1, {value: 0}),
       'Minting would exceed max supply'
     );
   });
