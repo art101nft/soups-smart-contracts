@@ -1,4 +1,4 @@
-const newURI = '';
+const newURI = 'ipfs://QmcGEVqQjAkZXfSSkXguvBp4WwiaD1uoXC276oZD4HniJq/'; // placeholder
 
 module.exports = async function main(callback) {
   try {
