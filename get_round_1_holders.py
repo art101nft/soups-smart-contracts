@@ -4,6 +4,7 @@ from json import load as json_load
 from json import dumps as json_dumps
 
 import arrow
+import requests
 from web3 import Web3
 from dotenv import load_dotenv
 
@@ -91,14 +92,23 @@ if __name__ == '__main__':
             else:
                 master_dict[token][owner] += 1
 
-    print(f'[{arrow.now()}] Found {len(master_list)} addresses holding GBS, NFS, MND, and BB!')
+    patrn_users = requests.get('https://patrn.me/api/v1/list_users').json()
+    for addr in patrn_users:
+        if addr not in master_list:
+            master_list.append(addr)
+
+    print(f'[{arrow.now()}] Found {len(patrn_users)} addresses registered on Patrn!')
+    print(f'[{arrow.now()}] Found {len(gbs_owners)} addresses holding GBS!')
+    print(f'[{arrow.now()}] Found {len(nfs_owners)} addresses holding NFS!')
+    print(f'[{arrow.now()}] Found {len(mnd_owners)} addresses holding MND!')
+    print(f'[{arrow.now()}] Found {len(bb_owners)} addresses holding BB!')
 
     # # Make our amounts strings for parsing with go-merkle-distributor
     for i in master_list:
         merkle_dict[i] = str(2)
 
     # # Save file
-    print(f'[{arrow.now()}] Found Art101 holders for whitelisting! Storing addresses and claimable tokens for generating merkle tree for distribution.')
+    print(f'[{arrow.now()}] Found {len(master_list)} Art101 holders and Patrn users for whitelisting! Storing addresses and claimable tokens for generating merkle tree for distribution.')
     with open('holders.json', 'w') as f:
         f.write(json_dumps(master_dict))
 
