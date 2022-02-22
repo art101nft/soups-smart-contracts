@@ -72,3 +72,7 @@ if __name__ == '__main__':
     print(f'[{arrow.now()}] Found {len(nfs_owners)} NFS holders for whitelisting! Storing addresses and claimable tokens for generating merkle tree for distribution.')
     with open('output.json', 'w') as f:
         f.write(json_dumps(merkle_dict))
+
+    with open('output.csv', 'a') as f:
+        for i in master_dict:
+            f.write(f'{i},{master_dict[i]}\n')
